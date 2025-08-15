@@ -17,8 +17,8 @@ from meteostat import Point, Hourly
 import time
 import warnings
 import json
-from logging_config import setup_logging
-from data_validation import DataValidator
+# from logging_config import setup_logging
+# from data_validation import DataValidator
 warnings.filterwarnings('ignore')
 
 # Configuration
@@ -51,30 +51,80 @@ class HistoricalDataCollector:
         print(f"⏰ Duration: {COLLECTION_DAYS} days")
 
     def fetch_weather_data(self):
-        """Fetch historical weather data from Meteostat"""
+        """Fetch historical weather data from Meteostat with fallback to Daily data"""
         print("\n🌤️ Fetching Historical Weather Data")
         print("-" * 40)
         
         try:
             location = Point(PESHAWAR_LAT, PESHAWAR_LON)
-            data = Hourly(location, self.start_date, self.end_date)
-            df = data.fetch()
             
-            if df is None or df.empty:
-                print("❌ No weather data received!")
-                return None
-            
-            df.reset_index(inplace=True)
-            df.rename(columns={
-                'time': 'timestamp',
-                'temp': 'temperature',
-                'dwpt': 'dew_point',
-                'rhum': 'relative_humidity',
-                'prcp': 'precipitation',
-                'wdir': 'wind_direction',
-                'wspd': 'wind_speed',
-                'pres': 'pressure'
-            }, inplace=True)
+            # Try Hourly data first
+            try:
+                print("   🔄 Attempting to fetch hourly data...")
+                data = Hourly(location, self.start_date, self.end_date)
+                df = data.fetch()
+                
+                if df is not None and not df.empty:
+                    df.reset_index(inplace=True)
+                    df.rename(columns={
+                        'time': 'timestamp',
+                        'temp': 'temperature',
+                        'dwpt': 'dew_point',
+                        'rhum': 'relative_humidity',
+                        'prcp': 'precipitation',
+                        'wdir': 'wind_direction',
+                        'wspd': 'wind_speed',
+                        'pres': 'pressure'
+                    }, inplace=True)
+                    print("   ✅ Hourly data fetched successfully")
+                else:
+                    raise Exception("No hourly data received")
+                    
+            except Exception as hourly_error:
+                print(f"   ⚠️ Hourly data failed: {str(hourly_error)[:100]}...")
+                print("   🔄 Falling back to daily data...")
+                
+                # Fallback to Daily data
+                from meteostat import Daily
+                data = Daily(location, self.start_date, self.end_date)
+                df = data.fetch()
+                
+                if df is None or df.empty:
+                    print("❌ No daily data received either!")
+                    return None
+                
+                df.reset_index(inplace=True)
+                # Daily data has different column names
+                df.rename(columns={
+                    'time': 'timestamp',
+                    'tavg': 'temperature',  # Use average temperature
+                    'prcp': 'precipitation',
+                    'wdir': 'wind_direction',
+                    'wspd': 'wind_speed',
+                    'pres': 'pressure'
+                }, inplace=True)
+                
+                # Handle additional daily data columns
+                if 'tmin' in df.columns and 'tmax' in df.columns:
+                    df['temperature_range'] = df['tmax'] - df['tmin']
+                else:
+                    df['temperature_range'] = 0
+                
+                # Add missing columns with default values
+                if 'dew_point' not in df.columns:
+                    df['dew_point'] = df['temperature'] - 5  # Estimate
+                if 'relative_humidity' not in df.columns:
+                    df['relative_humidity'] = 65  # Default value
+                
+                print("   ✅ Daily data fetched successfully (with estimated values)")
+                print("   🔄 Upsampling daily data to hourly...")
+                
+                # Upsample daily to hourly
+                df.set_index('timestamp', inplace=True)
+                df = df.resample('H').ffill()
+                df.reset_index(inplace=True)
+                
+                print(f"   ✅ Upsampled to {len(df)} hourly records")
             
             # Save raw data
             weather_file = os.path.join(self.data_dir, "raw", "historical_weather.csv")
