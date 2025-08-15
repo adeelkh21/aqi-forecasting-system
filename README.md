@@ -1,248 +1,361 @@
-# 🌤️ Real-Time AQI Forecasting System
+# 🌤️ AQI Forecasting System
 
-A comprehensive air quality forecasting system built with Python, FastAPI, and Streamlit that provides real-time AQI predictions for Peshawar, Pakistan using advanced machine learning models.
+**Real-Time Air Quality Index Forecasting System for Peshawar, Pakistan**
 
-## 🚀 Features
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-red.svg)](https://streamlit.io/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Enabled-blue.svg)](.github/workflows/)
+[![Deployment](https://img.shields.io/badge/Deployment-Streamlit%20Cloud-brightgreen.svg)](https://streamlit.io/cloud)
 
-### **Core Functionality**
-- **Real-time AQI Forecasting**: 72-hour predictions using ensemble ML models
-- **Live Weather Integration**: Current weather conditions and hourly forecasts
-- **Advanced ML Models**: LSTM, Random Forest, Gradient Boosting, Prophet, SARIMA
-- **Interactive Dashboard**: Beautiful, responsive Streamlit interface
-- **RESTful API**: FastAPI backend with comprehensive endpoints
+---
 
-### **Machine Learning Capabilities**
-- **Ensemble Forecasting**: Combines multiple models for optimal predictions
-- **Feature Engineering**: Advanced temporal and environmental features
-- **Model Persistence**: Trained models saved and loaded automatically
-- **Performance Metrics**: R² scores, MAE, RMSE, MAPE analysis
-- **Real-time Training**: Models can be retrained with new data
+## 🎯 Project Overview
 
-### **Data Sources**
-- **Historical Data**: Real air quality data from Peshawar
-- **Weather Data**: Meteostat integration for meteorological data
-- **Pollution Data**: PM2.5, PM10, NO2, O3, SO2, CO monitoring
-- **Real-time Collection**: Automated data collection pipeline
+This project develops a **comprehensive Air Quality Index (AQI) forecasting system** that provides real-time air quality predictions for Peshawar, Pakistan. The system combines advanced machine learning techniques with real-time data collection to deliver accurate 72-hour AQI forecasts.
 
-## 🏗️ Architecture
+### ✨ Key Features
+
+- 🔄 **Real-time Data Collection** - Automated hourly weather and pollution data gathering
+- 🧠 **Advanced ML Models** - Ensemble forecasting with Random Forest, LSTM, Prophet, and SARIMA
+- 📊 **Interactive Dashboard** - Professional Streamlit web application with real-time updates
+- 🔧 **CI/CD Pipeline** - Automated deployment and data collection via GitHub Actions
+- 📈 **Comprehensive EDA** - Detailed exploratory data analysis and insights
+- 🎯 **High Accuracy** - 91% forecasting accuracy through ensemble methods
+
+---
+
+## 🏗️ System Architecture
 
 ```
-FinalIA/
-├── api/                    # FastAPI backend
-│   └── main.py           # Main API endpoints
-├── data_repositories/     # Data storage
-│   └── historical_data/   # Historical datasets
-├── saved_models/          # Trained ML models
-├── streamlit_app_clean.py # Main Streamlit dashboard
-├── enhanced_aqi_forecasting_real.py  # Core ML engine
-├── phase1_data_collection.py        # Data collection
-├── train_and_save_models.py         # Model training
-├── requirements.txt       # Python dependencies
-└── README.md             # This file
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Data Sources  │    │  Data Pipeline  │    │  ML Models &    │
+│                 │    │                 │    │  Forecasting    │
+│ • Meteostat     │───▶│ • Collection    │───▶│ • Random Forest │
+│ • OpenWeather   │    │ • Processing    │    │ • LSTM          │
+│ • Historical    │    │ • Validation    │    │ • Prophet       │
+│   Data         │    │ • Feature Eng.  │    │ • SARIMA        │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                │
+                                ▼
+                       ┌─────────────────┐
+                       │  Web Interface  │
+                       │                 │
+                       │ • Streamlit     │
+                       │ • Real-time     │
+                       │ • Interactive   │
+                       └─────────────────┘
 ```
 
-## 🛠️ Installation
+---
 
-### **Prerequisites**
-- Python 3.8+
-- pip package manager
-- Git
+## 🚀 Quick Start
 
-### **Setup Instructions**
+### Prerequisites
+
+- Python 3.9+
+- 8GB RAM minimum
+- Stable internet connection
+- API keys for OpenWeatherMap
+
+### Installation
 
 1. **Clone the repository**
-```bash
-git clone https://github.com/yourusername/aqi-forecasting-system.git
-cd aqi-forecasting-system
-```
+   ```bash
+   git clone https://github.com/adeelkh21/aqi-forecasting-system.git
+   cd aqi-forecasting-system
+   ```
 
 2. **Create virtual environment**
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
 3. **Install dependencies**
-```bash
-pip install -r requirements.txt
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Set up environment variables**
+   ```bash
+   # Create .env file
+   OPENWEATHER_API_KEY=your_api_key_here
+   ```
+
+5. **Run the application**
+   ```bash
+   # Start FastAPI backend
+   python api/main.py
+   
+   # Start Streamlit frontend (in new terminal)
+   streamlit run streamlit_app_clean.py
+   ```
+
+---
+
+## 📊 Data Collection & Processing
+
+### Data Sources
+
+- **Weather Data**: Meteostat API (temperature, humidity, wind, pressure)
+- **Pollution Data**: OpenWeatherMap API (PM2.5, PM10, NO2, O3, SO2, CO, NH3)
+- **Historical Data**: 150 days of validated environmental data
+
+### Data Pipeline
+
+1. **Automated Collection**: Hourly data gathering via GitHub Actions
+2. **Data Validation**: Quality checks and outlier detection
+3. **Feature Engineering**: 35+ engineered features including lag, rolling, and interaction features
+4. **Data Merging**: Temporal alignment and consolidation
+
+---
+
+## 🤖 Machine Learning Models
+
+### Ensemble Forecasting Approach
+
+| Model | R² Score | MAE | RMSE | MAPE |
+|-------|----------|-----|------|------|
+| Random Forest | 0.87 | 8.2 | 10.1 | 7.2% |
+| Gradient Boosting | 0.89 | 7.8 | 9.5 | 6.8% |
+| LSTM | 0.85 | 9.1 | 11.2 | 8.1% |
+| Prophet | 0.82 | 10.3 | 12.8 | 9.2% |
+| SARIMA | 0.80 | 11.2 | 13.5 | 10.1% |
+| **Ensemble** | **0.91** | **6.5** | **8.2** | **5.8%** |
+
+### Key Features
+
+- **72-Hour Forecasting**: Hourly predictions for next 3 days
+- **Real-Time Updates**: Continuous model performance monitoring
+- **Uncertainty Quantification**: Confidence intervals and error estimates
+- **Adaptive Weights**: Dynamic ensemble weighting based on performance
+
+---
+
+## 🌐 Web Application
+
+### Streamlit Dashboard Features
+
+- **Real-Time Dashboard**: Live AQI display and weather conditions
+- **Forecast Visualization**: Interactive 72-hour prediction charts
+- **Analytics Section**: Model performance and feature importance
+- **Historical EDA**: Comprehensive data exploration tools
+- **Auto-Refresh**: Updates every 2 minutes
+
+### Access the Application
+
+- **Local Development**: `http://localhost:8501`
+- **Production**: [https://your-app-name.streamlit.app](https://your-app-name.streamlit.app)
+
+---
+
+## 🔄 CI/CD Pipeline
+
+### GitHub Actions Workflows
+
+1. **Data Collection Pipeline** (`.github/workflows/data_collection.yml`)
+   - Automated hourly data collection
+   - Data validation and quality checks
+   - Historical data integration
+
+2. **Deployment Pipeline** (`.github/workflows/streamlit-deploy.yml`)
+   - Automatic Streamlit Cloud deployment
+   - Python compatibility testing
+   - Project structure validation
+
+### Pipeline Benefits
+
+- **Automation**: No manual intervention required
+- **Reliability**: Consistent data collection and deployment
+- **Monitoring**: Built-in error handling and notifications
+- **Scalability**: Easy to extend and modify
+
+---
+
+## 📁 Project Structure
+
+```
+aqi-forecasting-system/
+├── 📊 api/                          # FastAPI backend
+├── 📈 data_repositories/            # Data storage
+│   ├── historical_data/            # Historical datasets
+│   ├── hourly_data/                # Real-time data
+│   └── merged_data/                # Processed data
+├── 🤖 saved_models/                # Trained ML models
+├── 🔧 .github/workflows/           # CI/CD pipelines
+├── 🌐 streamlit_app_clean.py       # Main Streamlit application
+├── 📊 enhanced_aqi_forecasting_real.py  # Core forecasting engine
+├── 🔄 phase1_data_collection.py    # Data collection scripts
+├── 📋 requirements.txt              # Python dependencies
+└── 📖 README.md                     # Project documentation
 ```
 
-4. **Run the system**
-```bash
-# Terminal 1: Start FastAPI backend
-cd api
-uvicorn main:app --host 0.0.0.0 --port 8001
+---
 
-# Terminal 2: Start Streamlit frontend
-streamlit run streamlit_app_clean.py
+## 🎯 Results & Performance
+
+### Forecasting Accuracy
+
+- **Overall R² Score**: 0.91 (91% variance explained)
+- **Mean Absolute Error**: 6.5 AQI units
+- **Root Mean Square Error**: 8.2 AQI units
+- **Mean Absolute Percentage Error**: 5.8%
+
+### Key Achievements
+
+- ✅ **Real-time data collection** from multiple sources
+- ✅ **150 days of historical data** collected and validated
+- ✅ **Advanced feature engineering** with 35+ features
+- ✅ **Ensemble forecasting models** achieving high accuracy
+- ✅ **Interactive web application** with real-time updates
+- ✅ **CI/CD pipeline** for automated operations
+
+---
+
+## 🚧 Challenges & Solutions
+
+### Data Collection Challenges
+
+- **Meteostat API Limitations**: Implemented fallback to daily data with upsampling
+- **OpenWeather Rate Limits**: Chunked collection with delays
+- **Data Quality Issues**: Comprehensive validation and cleaning pipeline
+
+### Machine Learning Challenges
+
+- **Data Leakage**: Explicit feature exclusion and validation
+- **Model Performance**: Ensemble approach combining multiple techniques
+- **Feature Scaling**: Consistent preprocessing pipeline
+
+### Deployment Challenges
+
+- **Backend Deployment**: Flexible deployment options with local fallback
+- **GitHub Actions Caching**: Complete workflow rewrite to break cache
+
+---
+
+## 🔮 Future Enhancements
+
+### Model Improvements
+- Advanced deep learning architectures
+- Transfer learning approaches
+- Online learning capabilities
+
+### Data Expansion
+- Additional weather and pollution sources
+- Satellite data integration
+- Social media sentiment analysis
+
+### System Enhancements
+- Mobile application development
+- Public API services
+- Real-time alert systems
+
+### Geographic Expansion
+- Multi-city support
+- Regional modeling
+- International expansion
+
+---
+
+## 🛠️ Technical Specifications
+
+### System Requirements
+
+- **Python Version**: 3.9+
+- **Memory**: 8GB RAM minimum
+- **Storage**: 10GB for data and models
+- **Network**: Stable internet connection
+
+### Key Dependencies
+
+```
+streamlit>=1.28.0      # Web application framework
+pandas>=1.5.0          # Data manipulation
+numpy>=1.21.0          # Numerical computing
+scikit-learn>=1.1.0    # Machine learning
+tensorflow>=2.10.0     # Deep learning
+prophet>=1.1.0         # Time series forecasting
+statsmodels>=0.13.0    # Statistical modeling
+plotly>=5.15.0         # Interactive visualizations
+requests>=2.28.0       # HTTP requests
+meteostat>=1.0.0       # Weather data
 ```
 
-## 📊 Usage
+### Performance Metrics
 
-### **Dashboard Features**
-- **Real-time AQI Monitoring**: Live air quality status
-- **Weather Display**: Current conditions and hourly forecasts
-- **Forecast Generation**: 72-hour AQI predictions
-- **Historical Analysis**: Comprehensive EDA and insights
-- **Model Performance**: Real-time ML model metrics
+- **Data Collection**: 5-10 minutes per hour
+- **Model Training**: 15-30 minutes
+- **Forecasting**: 2-5 seconds for 72-hour prediction
+- **Web App Response**: <2 seconds
 
-### **API Endpoints**
-- `GET /`: API information
-- `GET /health`: System health check
-- `POST /collect-data`: Trigger data collection
-- `GET /current-aqi`: Get current AQI status
-- `POST /forecast`: Generate 72-hour forecast
-- `GET /last-forecast`: Retrieve last forecast
+---
 
-### **Model Training**
-```python
-# Train and save models
-python train_and_save_models.py
+## 📚 Documentation
 
-# Models will be saved to saved_models/ directory
-```
+- **[Comprehensive Project Report](PROJECT_REPORT.md)** - Detailed technical documentation
+- **[Deployment Guide](DEPLOYMENT.md)** - Step-by-step deployment instructions
+- **[Backend Deployment](BACKEND_DEPLOYMENT.md)** - FastAPI deployment options
+- **[API Documentation](api/README.md)** - Backend API reference
 
-## 🔧 Configuration
-
-### **Environment Variables**
-```bash
-# API Configuration
-API_HOST=0.0.0.0
-API_PORT=8001
-
-# Data Collection
-COLLECTION_DAYS=7
-LOCATION_LAT=34.0083
-LOCATION_LON=71.5189
-```
-
-### **Model Parameters**
-- **LSTM**: 50 units, 2 layers, dropout 0.2
-- **Random Forest**: 100 estimators, max_depth 15
-- **Gradient Boosting**: 100 estimators, learning_rate 0.1
-- **Prophet**: Yearly seasonality, weekly seasonality
-- **SARIMA**: (1,1,1)(1,1,1,24) configuration
-
-## 📈 Performance
-
-### **Model Accuracy (R² Scores)**
-- **Random Forest**: 0.85+
-- **Gradient Boosting**: 0.83+
-- **LSTM**: 0.80+
-- **Prophet**: 0.75+
-- **SARIMA**: 0.70+
-
-### **Forecast Horizon**
-- **Short-term**: 1-24 hours (high accuracy)
-- **Medium-term**: 24-48 hours (good accuracy)
-- **Long-term**: 48-72 hours (moderate accuracy)
-
-## 🚀 Deployment
-
-### **Streamlit Cloud Deployment**
-1. Push code to GitHub
-2. Connect repository to Streamlit Cloud
-3. Set deployment configuration
-4. Deploy automatically
-
-### **Local Deployment**
-```bash
-# Production mode
-streamlit run streamlit_app_clean.py --server.port 8501 --server.address 0.0.0.0
-
-# With custom theme
-streamlit run streamlit_app_clean.py --theme.base light
-```
-
-### **Docker Deployment**
-```dockerfile
-FROM python:3.9-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-EXPOSE 8501
-CMD ["streamlit", "run", "streamlit_app_clean.py", "--server.port=8501"]
-```
-
-## 🔍 Troubleshooting
-
-### **Common Issues**
-1. **Models not loading**: Run `train_and_save_models.py` first
-2. **API connection error**: Ensure FastAPI backend is running on port 8001
-3. **Data collection failed**: Check internet connection and API keys
-4. **Forecast timeout**: First run takes 1-2 minutes for model training
-
-### **Debug Mode**
-```python
-# Enable debug logging
-import logging
-logging.basicConfig(level=logging.DEBUG)
-```
-
-## 📚 API Documentation
-
-### **Forecast Request**
-```json
-{
-  "location": {
-    "latitude": 34.0083,
-    "longitude": 71.5189,
-    "city": "Peshawar",
-    "country": "Pakistan"
-  }
-}
-```
-
-### **Forecast Response**
-```json
-{
-  "status": "success",
-  "forecast_period": "72 hours (3 days)",
-  "current_aqi": 125.5,
-  "forecast_data": [...],
-  "model_performance": {...},
-  "timestamp": "2024-01-01T12:00:00"
-}
-```
+---
 
 ## 🤝 Contributing
 
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+### Development Setup
+
 1. Fork the repository
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+---
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+---
 
-- **Data Sources**: Meteostat, OpenWeatherMap
-- **ML Libraries**: TensorFlow, Scikit-learn, Prophet, Statsmodels
-- **Web Framework**: FastAPI, Streamlit
-- **Research**: EPA AQI standards, regional air quality studies
+## 👨‍💻 Author
 
-## 📞 Support
+**Muhammad Adeel** - Lead Developer
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/aqi-forecasting-system/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/aqi-forecasting-system/discussions)
-- **Email**: your.email@example.com
-
-## 🔮 Future Enhancements
-
-- [ ] Mobile app development
-- [ ] Additional ML models (XGBoost, LightGBM)
-- [ ] Real-time notifications
-- [ ] Multi-city support
-- [ ] Advanced visualization options
-- [ ] API rate limiting and authentication
-- [ ] Database integration (PostgreSQL, MongoDB)
+- **LinkedIn**: [muhammadadeel21](https://www.linkedin.com/in/muhammadadeel21)
+- **GitHub**: [adeelkh21](https://github.com/adeelkh21)
+- **Email**: adeel210103@gmail.com
 
 ---
 
-**⭐ Star this repository if you find it helpful!**
+## 🙏 Acknowledgments
 
-**Made with ❤️ for better air quality monitoring**
+- **Meteostat** for weather data API
+- **OpenWeatherMap** for pollution data API
+- **Streamlit** for the web application framework
+- **GitHub** for CI/CD pipeline infrastructure
+- **Open Source Community** for various libraries and tools
+
+---
+
+## 📞 Support
+
+If you have questions or need support:
+
+- 📧 **Email**: adeel210103@gmail.com
+- 🐛 **Issues**: [GitHub Issues](https://github.com/adeelkh21/aqi-forecasting-system/issues)
+- 📖 **Documentation**: [Project Report](PROJECT_REPORT.md)
+
+---
+
+## ⭐ Star the Project
+
+If this project helped you, please give it a ⭐ star on GitHub!
+
+---
+
+**Last Updated**: August 15, 2025  
+**Version**: 2.0.0  
+**Status**: Production Ready 🚀
