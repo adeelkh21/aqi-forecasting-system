@@ -38,6 +38,54 @@ API_BASE_URL = "http://localhost:8001"
 # Auto-refresh every 2 minutes (120 seconds)
 st_autorefresh(interval=120000, key="data_refresh")
 
+# Header with author information and hyperlinks
+def show_header():
+    """Display header with author information and hyperlinks"""
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                padding: 2rem; border-radius: 20px; text-align: center; color: white; 
+                margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <h1 style="margin: 0 0 1rem 0; font-size: 2.5rem; font-weight: bold; 
+                   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+            🌤️ Real-Time AQI Forecasting System
+        </h1>
+        <p style="font-size: 1.2rem; margin-bottom: 1.5rem; opacity: 0.9;">
+            Advanced Air Quality Index Forecasting for Peshawar, Pakistan
+        </p>
+        <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+            <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 10px;">
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;">👨‍💻 Created by</h3>
+                <p style="margin: 0; font-size: 1.3rem; font-weight: bold;">Muhammad Adeel</p>
+            </div>
+            <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 10px;">
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;">🔗 Connect</h3>
+                <p style="margin: 0;">
+                    <a href="https://www.linkedin.com/in/muhammadadeel21" 
+                       target="_blank" 
+                       style="color: #00d4ff; text-decoration: none; font-weight: bold;">
+                        LinkedIn: muhammadadeel21
+                    </a>
+                </p>
+            </div>
+            <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 10px;">
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;">🐙 GitHub</h3>
+                <p style="margin: 0;">
+                    <a href="https://github.com/adeelkh21" 
+                       target="_blank" 
+                       style="color: #00d4ff; text-decoration: none; font-weight: bold;">
+                        adeelkh21
+                    </a>
+                </p>
+            </div>
+        </div>
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.3);">
+            <p style="margin: 0; font-size: 1rem; opacity: 0.8;">
+                🤖 Machine Learning • 📊 Real-Time Data • 🌍 Environmental Monitoring
+            </p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
 # Custom CSS for enhanced styling
 st.markdown("""
 <style>
@@ -604,15 +652,6 @@ def auto_data_pipeline():
 
 def show_real_time_dashboard():
     """Show the main real-time dashboard"""
-    # Live indicator header
-    st.markdown("""
-    <div class="main-header">
-        <h1>🌤️ Real-Time AQI Forecasting Dashboard</h1>
-        <p style="font-size: 20px; margin: 0;">Live air quality monitoring and forecasting for Peshawar</p>
-        <p style="font-size: 16px; margin: 0.5rem 0 0 0;">Powered by Advanced Machine Learning Ensemble</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
     # Live status indicator
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
@@ -731,165 +770,13 @@ def show_real_time_dashboard():
         with col2:
             st.markdown("""
             <div class="info-box">
-                <h3>📊 AQI Categories (90-155 Range)</h3>
-                <p>🟢 <strong>Good (90-100):</strong> Air quality is satisfactory</p>
-                <p>🟡 <strong>Moderate (100-120):</strong> Air quality is acceptable</p>
-                <p>🟠 <strong>Unhealthy for Sensitive Groups (120-140):</strong> Some people may be affected</p>
-                <p>🔴 <strong>Unhealthy (140-155):</strong> Everyone may begin to experience health effects</p>
+                <h3>📊 AQI Categories Range)</h3>
+                <p>🟢 <strong>Good </strong> Air quality is satisfactory</p>
+                <p>🟡 <strong>Moderate :</strong> Air quality is acceptable</p>
+                <p>🟠 <strong>Unhealthy for Sensitive Groups :</strong> Some people may be affected</p>
+                <p>🔴 <strong>Unhealthy </strong> Everyone may begin to experience health effects</p>
             </div>
             """, unsafe_allow_html=True)
-        
-        # Current Weather Section - Beautiful Weather Display
-        st.subheader("🌤️ Current Weather Conditions")
-        
-        try:
-            # Get current weather data from the API
-            weather_response = requests.get("http://localhost:8001/current-aqi", timeout=10)
-            if weather_response.status_code == 200:
-                weather_data = weather_response.json()
-                
-                # Create beautiful weather cards
-                col1, col2, col3, col4 = st.columns(4)
-                
-                with col1:
-                    # Temperature card
-                    st.markdown("""
-                    <div class="weather-card" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); 
-                                padding: 1.5rem; border-radius: 15px; text-align: center; color: white; margin: 0.5rem 0;">
-                        <h3 style="margin: 0; font-size: 1.2rem;">🌡️ Temperature</h3>
-                        <p style="font-size: 2rem; font-weight: bold; margin: 0.5rem 0;">24°C</p>
-                        <p style="margin: 0; font-size: 0.9rem;">Feels like 26°C</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                with col2:
-                    # Humidity card
-                    st.markdown("""
-                    <div class="weather-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); 
-                                padding: 1.5rem; border-radius: 15px; text-align: center; color: #333; margin: 0.5rem 0;">
-                        <h3 style="margin: 0; font-size: 1.2rem;">💧 Humidity</h3>
-                        <p style="font-size: 2rem; font-weight: bold; margin: 0.5rem 0;">65%</p>
-                        <p style="margin: 0; font-size: 0.9rem;">Comfortable</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                with col3:
-                    # Wind card
-                    st.markdown("""
-                    <div class="weather-card" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); 
-                                padding: 1.5rem; border-radius: 15px; text-align: center; color: #333; margin: 0.5rem 0;">
-                        <h3 style="margin: 0; font-size: 1.2rem;">💨 Wind</h3>
-                        <p style="font-size: 2rem; font-weight: bold; margin: 0.5rem 0;">12 km/h</p>
-                        <p style="margin: 0; font-size: 0.9rem;">Light breeze</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                with col4:
-                    # Pressure card
-                    st.markdown("""
-                    <div class="weather-card" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); 
-                                padding: 1.5rem; border-radius: 15px; text-align: center; color: white; margin: 0.5rem 0;">
-                        <h3 style="margin: 0; font-size: 1.2rem;">🌪️ Pressure</h3>
-                        <p style="font-size: 2rem; font-weight: bold; margin: 0.5rem 0;">1013 hPa</p>
-                        <p style="margin: 0; font-size: 0.9rem;">Normal</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                # Weather summary and conditions
-                col1, col2 = st.columns([2, 1])
-                
-                with col1:
-                    st.markdown("""
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                                padding: 1.5rem; border-radius: 15px; color: white; margin: 1rem 0;">
-                        <h3 style="margin: 0 0 1rem 0;">🌤️ Weather Summary</h3>
-                        <p style="margin: 0.5rem 0; font-size: 1.1rem;"><strong>Location:</strong> Peshawar, Pakistan</p>
-                        <p style="margin: 0.5rem 0; font-size: 1.1rem;"><strong>Condition:</strong> Partly Cloudy</p>
-                        <p style="margin: 0.5rem 0; font-size: 1.1rem;"><strong>Visibility:</strong> 10 km</p>
-                        <p style="margin: 0.5rem 0; font-size: 1.1rem;"><strong>UV Index:</strong> Moderate (5)</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                with col2:
-                    # Weather icon and current condition
-                    st.markdown("""
-                    <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
-                                padding: 1.5rem; border-radius: 15px; text-align: center; color: white; margin: 1rem 0;">
-                        <h1 style="font-size: 4rem; margin: 0;">⛅</h1>
-                        <h3 style="margin: 0.5rem 0;">Partly Cloudy</h3>
-                        <p style="margin: 0; font-size: 0.9rem;">Updated: Just now</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                # Weather forecast for next few hours
-                st.subheader("🕐 Hourly Weather Forecast")
-                
-                # Create hourly weather forecast chart
-                hours = ['Now', '1h', '2h', '3h', '4h', '5h', '6h']
-                temps = [24, 25, 26, 25, 24, 23, 22]
-                conditions = ['⛅', '☀️', '☀️', '⛅', '🌙', '🌙', '🌙']
-                
-                col1, col2 = st.columns([3, 1])
-                
-                with col1:
-                    fig = go.Figure()
-                    fig.add_trace(go.Scatter(
-                        x=hours,
-                        y=temps,
-                        mode='lines+markers',
-                        name='Temperature',
-                        line=dict(color='#ff6b6b', width=4),
-                        marker=dict(size=12, color='#ff6b6b')
-                    ))
-                    
-                    fig.update_layout(
-                        title="Temperature Trend (Next 6 Hours)",
-                        xaxis_title="Time",
-                        yaxis_title="Temperature (°C)",
-                        height=300,
-                        paper_bgcolor='rgba(0,0,0,0)',
-                        plot_bgcolor='rgba(0,0,0,0)',
-                        showlegend=False
-                    )
-                    
-                    st.plotly_chart(fig, use_container_width=True)
-                
-                with col2:
-                    # Hourly conditions
-                    st.markdown("""
-                    <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
-                                padding: 1rem; border-radius: 10px; color: white;">
-                        <h4 style="margin: 0 0 1rem 0;">Hourly Conditions</h4>
-                    """, unsafe_allow_html=True)
-                    
-                    for i, (hour, temp, condition) in enumerate(zip(hours, temps, conditions)):
-                        st.markdown(f"""
-                        <div style="display: flex; justify-content: space-between; align-items: center; 
-                                    margin: 0.5rem 0; padding: 0.5rem; background: rgba(255,255,255,0.2); 
-                                    border-radius: 5px;">
-                            <span style="font-size: 1.2rem;">{condition}</span>
-                            <span style="font-weight: bold;">{temp}°C</span>
-                            <span style="font-size: 0.9rem;">{hour}</span>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    
-                    st.markdown("</div>", unsafe_allow_html=True)
-                
-            else:
-                # Fallback weather display if API is not available
-                st.info("🌤️ **Weather Information**: Real-time weather data will be available when the backend API is fully connected.")
-                st.markdown("""
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                            padding: 1.5rem; border-radius: 15px; color: white; margin: 1rem 0;">
-                    <h3 style="margin: 0 0 1rem 0;">🌤️ Weather Summary</h3>
-                    <p style="margin: 0.5rem 0; font-size: 1.1rem;"><strong>Location:</strong> Peshawar, Pakistan</p>
-                    <p style="margin: 0.5rem 0; font-size: 1.1rem;"><strong>Condition:</strong> Data Loading...</p>
-                    <p style="margin: 0.5rem 0; font-size: 1.1rem;"><strong>Status:</strong> Connecting to weather service</p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-        except Exception as e:
-            st.warning(f"🌤️ **Weather Display**: Weather information temporarily unavailable. Error: {str(e)}")
         
         # Real-time forecast display
         if st.session_state.forecast_data and 'forecast_data' in st.session_state.forecast_data:
@@ -1008,8 +895,6 @@ def show_real_time_dashboard():
 
 def show_analytics():
     """Show analytics page with real-time data insights"""
-    st.header("📊 Real-Time Analytics & Insights")
-    
     if not st.session_state.forecast_data:
         st.warning("⚠️ No forecast data available. Generate a forecast first to see analytics.")
         return
@@ -1518,9 +1403,6 @@ def show_analytics():
 def show_historical_eda():
     """Show comprehensive historical EDA using the actual historical_merged.csv file"""
     try:
-        st.header("📊 Historical EDA & Data Analysis")
-        st.markdown("**Comprehensive analysis of historical AQI and weather data from Peshawar**")
-        
         # Load historical data
         try:
             csv_path = "data_repositories/historical_data/processed/historical_merged.csv"
@@ -2435,8 +2317,110 @@ Analysis completed successfully.
         st.info("Please check the console for detailed error information.")
         st.exception(e)
 
+def show_creator_info():
+    """Show information about the project creator"""
+    st.header("👨‍💻 Project Creator")
+    
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                padding: 2rem; border-radius: 15px; color: white; margin: 1rem 0;">
+        <h2 style="text-align: center; margin-bottom: 1.5rem;">🚀 AQI Forecasting System</h2>
+        <div style="text-align: center;">
+            <h3 style="margin-bottom: 1rem;">Created by: <strong>Muhammad Adeel</strong></h3>
+            <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">
+                A comprehensive air quality forecasting system using machine learning and real-time data collection.
+            </p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Creator details in columns
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); 
+                    padding: 1.5rem; border-radius: 15px; text-align: center; color: white; margin: 0.5rem 0;">
+            <h3 style="margin: 0; font-size: 1.2rem;">👨‍💻 Developer</h3>
+            <p style="font-size: 1.5rem; font-weight: bold; margin: 0.5rem 0;">Muhammad Adeel</p>
+            <p style="margin: 0; font-size: 0.9rem;">Full Stack Developer</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); 
+                    padding: 1.5rem; border-radius: 15px; text-align: center; color: #333; margin: 0.5rem 0;">
+            <h3 style="margin: 0; font-size: 1.2rem;">🔗 LinkedIn</h3>
+            <p style="font-size: 1.5rem; font-weight: bold; margin: 0.5rem 0;">muhammadadeel21</p>
+            <p style="margin: 0; font-size: 0.9rem;">Professional Profile</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); 
+                    padding: 1.5rem; border-radius: 15px; text-align: center; color: #333; margin: 0.5rem 0;">
+            <h3 style="margin: 0; font-size: 1.2rem;">🐙 GitHub</h3>
+            <p style="font-size: 1.5rem; font-weight: bold; margin: 0.5rem 0;">adeelkh21</p>
+            <p style="margin: 0; font-size: 0.9rem;">Open Source Projects</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Project description
+    st.subheader("📋 About This Project")
+    
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
+                padding: 1.5rem; border-radius: 15px; color: white; margin: 1rem 0;">
+        <h3 style="margin: 0 0 1rem 0;">🌤️ Air Quality Index Forecasting System</h3>
+        <p style="margin: 0.5rem 0; font-size: 1.1rem;">
+            <strong>Purpose:</strong> Real-time air quality monitoring and 72-hour forecasting for Peshawar, Pakistan
+        </p>
+        <p style="margin: 0.5rem 0; font-size: 1.1rem;">
+            <strong>Technology:</strong> Machine Learning (Random Forest, Gradient Boosting, LSTM), FastAPI, Streamlit
+        </p>
+        <p style="margin: 0.5rem 0; font-size: 1.1rem;">
+            <strong>Data:</strong> Real-time weather and pollution data collection with historical analysis
+        </p>
+        <p style="margin: 0.5rem 0; font-size: 1.1rem;">
+            <strong>Features:</strong> Live dashboard, automated forecasting, comprehensive EDA, and real-time updates
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Contact information
+    st.subheader("📞 Contact Information")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); 
+                    padding: 1rem; border-radius: 10px; color: white;">
+            <h4 style="margin: 0 0 1rem 0;">🔗 Connect with Muhammad Adeel</h4>
+            <p style="margin: 0.5rem 0;">• <strong>LinkedIn:</strong> muhammadadeel21</p>
+            <p style="margin: 0.5rem 0;">• <strong>GitHub:</strong> adeelkh21</p>
+            <p style="margin: 0.5rem 0;">• <strong>Project:</strong> AQI Forecasting System</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+                    padding: 1rem; border-radius: 10px; color: white;">
+            <h4 style="margin: 0 0 1rem 0;">💡 Project Highlights</h4>
+            <p style="margin: 0.5rem 0;">• <strong>Real-time Data:</strong> Live weather & pollution collection</p>
+            <p style="margin: 0.5rem 0;">• <strong>ML Models:</strong> Ensemble forecasting approach</p>
+            <p style="margin: 0.5rem 0;">• <strong>Web Interface:</strong> Interactive Streamlit dashboard</p>
+        </div>
+        """, unsafe_allow_html=True)
+
 def main():
     """Main Streamlit application with real-time functionality"""
+    # Display header with author information
+    show_header()
+    
     # Sidebar navigation
     st.sidebar.markdown("""
     <div style="text-align: center; padding: 1rem;">
@@ -2451,8 +2435,8 @@ def main():
     
     page = st.sidebar.selectbox(
         "Choose a page:",
-        ["Dashboard", "Analytics", "Historical EDA"],
-        index=0 if st.session_state.page == "Dashboard" else 1 if st.session_state.page == "Analytics" else 2
+        ["Dashboard", "Analytics", "Historical EDA", "Creator Info"],
+        index=0 if st.session_state.page == "Dashboard" else 1 if st.session_state.page == "Analytics" else 2 if st.session_state.page == "Historical EDA" else 3
     )
     
     st.session_state.page = page
@@ -2464,14 +2448,22 @@ def main():
         st.sidebar.info("📈 **Analytics**: Forecast insights and model performance")
     elif page == "Historical EDA":
         st.sidebar.info("🔍 **Historical EDA**: Deep analysis of historical data patterns")
+    elif page == "Creator Info":
+        st.sidebar.info("👨‍💻 **Creator Info**: About the developer and project")
     
     # Display selected page
     if page == "Dashboard":
+        st.markdown("## 📊 Real-Time Dashboard")
         show_real_time_dashboard()
     elif page == "Analytics":
+        st.markdown("## 📈 Analytics & Insights")
         show_analytics()
     elif page == "Historical EDA":
+        st.markdown("## 🔍 Historical Data Analysis")
         show_historical_eda()
+    elif page == "Creator Info":
+        st.markdown("## 👨‍💻 About the Creator")
+        show_creator_info()
     
     # Enhanced footer with real-time info
     st.sidebar.markdown("---")

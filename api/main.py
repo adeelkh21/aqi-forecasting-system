@@ -464,4 +464,4 @@ def generate_fallback_aqi() -> float:
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host=HOST, port=PORT, debug=DEBUG)
+    uvicorn.run(app, host=HOST, port=PORT, log_level=("debug" if DEBUG else "info"))
