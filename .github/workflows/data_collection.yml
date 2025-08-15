@@ -1,5 +1,8 @@
 name: Data Collection Pipeline
 
+# Updated workflow with enhanced data collection and merging capabilities
+# Version: 2.0 - Fixed file references and added comprehensive data processing
+
 on:
   schedule:
     - cron: '0 * * * *'  # Run every hour
