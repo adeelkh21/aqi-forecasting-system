@@ -21,13 +21,9 @@ font = "sans serif"
 
 [client]
 showErrorDetails = false
-caching = true
-displayEnabled = true
 
 [runner]
 magicEnabled = true
-installTracer = false
-fixMatplotlib = true
 
 [logger]
 level = "info"
