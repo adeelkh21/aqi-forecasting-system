@@ -20,8 +20,8 @@ from meteostat import Point, Hourly
 import time
 import warnings
 import json
-from logging_config import setup_logging
-from data_validation import DataValidator
+# from logging_config import setup_logging
+# from data_validation import DataValidator
 warnings.filterwarnings('ignore')
 
 # Configuration
@@ -36,9 +36,9 @@ class DataCollector:
         print("🔄 Initializing AQI Data Collection Pipeline")
         print("=" * 50)
         
-        # Initialize dates
+        # Initialize dates (use longer period to ensure data availability)
         self.end_date = datetime.now()
-        self.start_date = self.end_date - timedelta(days=COLLECTION_DAYS)
+        self.start_date = self.end_date - timedelta(days=max(COLLECTION_DAYS, 7))
         
         # Create directories in hourly data repository
         self.collection_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -55,30 +55,87 @@ class DataCollector:
         print(f"📂 Data Directory: {self.data_dir}")
 
     def fetch_weather_data(self):
-        """Fetch weather data from Meteostat"""
+        """Fetch weather data from Meteostat with fallback to Daily data"""
         print("\n🌤️ Fetching Weather Data")
         print("-" * 30)
         
         try:
             location = Point(PESHAWAR_LAT, PESHAWAR_LON)
-            data = Hourly(location, self.start_date, self.end_date)
-            df = data.fetch()
+            
+            # Try Hourly data first
+            try:
+                print("   🔄 Attempting to fetch hourly data...")
+                data = Hourly(location, self.start_date, self.end_date)
+                df = data.fetch()
+                
+                if df is not None and not df.empty:
+                    df.reset_index(inplace=True)
+                    df.rename(columns={
+                        'time': 'timestamp',
+                        'temp': 'temperature',
+                        'dwpt': 'dew_point',
+                        'rhum': 'relative_humidity',
+                        'prcp': 'precipitation',
+                        'wdir': 'wind_direction',
+                        'wspd': 'wind_speed',
+                        'pres': 'pressure'
+                    }, inplace=True)
+                    print("   ✅ Hourly data fetched successfully")
+                else:
+                    raise Exception("No hourly data received")
+                    
+            except Exception as hourly_error:
+                print(f"   ⚠️ Hourly data failed: {str(hourly_error)[:100]}...")
+                print("   🔄 Falling back to daily data...")
+                
+                # Fallback to Daily data
+                from meteostat import Daily
+                data = Daily(location, self.start_date, self.end_date)
+                df = data.fetch()
+                
+                if df is None or df.empty:
+                    print("❌ No daily data received either!")
+                    return None
+                
+                df.reset_index(inplace=True)
+                # Daily data has different column names
+                df.rename(columns={
+                    'time': 'timestamp',
+                    'tavg': 'temperature',  # Use average temperature
+                    'prcp': 'precipitation',
+                    'wdir': 'wind_direction',
+                    'wspd': 'wind_speed',
+                    'pres': 'pressure'
+                }, inplace=True)
+                
+                # Handle additional daily data columns
+                if 'tmin' in df.columns and 'tmax' in df.columns:
+                    df['temperature_range'] = df['tmax'] - df['tmin']
+                else:
+                    df['temperature_range'] = 0
+                
+                # Add missing columns with reasonable defaults for daily data
+                df['dew_point'] = df['temperature'] - 5  # Approximate dew point
+                df['relative_humidity'] = 60  # Default humidity
+                
+                print("   ✅ Daily data fetched successfully (with estimated values)")
+                
+                # Upsample daily data to hourly to match pollution data frequency
+                print("   🔄 Upsampling daily data to hourly...")
+                df.set_index('timestamp', inplace=True)
+                
+                # Resample to hourly and forward fill missing values
+                df_hourly = df.resample('H').ffill()
+                
+                # Reset index to get timestamp as column again
+                df_hourly.reset_index(inplace=True)
+                
+                print(f"   ✅ Upsampled to {len(df_hourly)} hourly records")
+                df = df_hourly
             
             if df is None or df.empty:
                 print("❌ No weather data received!")
                 return None
-            
-            df.reset_index(inplace=True)
-            df.rename(columns={
-                'time': 'timestamp',
-                'temp': 'temperature',
-                'dwpt': 'dew_point',
-                'rhum': 'relative_humidity',
-                'prcp': 'precipitation',
-                'wdir': 'wind_direction',
-                'wspd': 'wind_speed',
-                'pres': 'pressure'
-            }, inplace=True)
             
             # Save raw data
             weather_file = os.path.join(self.data_dir, "raw", "weather_data.csv")
@@ -201,6 +258,18 @@ class DataCollector:
             df['month'] = df['timestamp'].dt.month
             df['day_of_week'] = df['timestamp'].dt.dayofweek
             df['is_weekend'] = df['day_of_week'].isin([5, 6]).astype(int)
+            
+            # Add advanced cyclical features (matching training data)
+            df['day_of_year'] = df['timestamp'].dt.dayofyear
+            df['day_of_year_sin'] = np.sin(2 * np.pi * df['day_of_year'] / 365)
+            df['day_of_year_cos'] = np.cos(2 * np.pi * df['day_of_year'] / 365)
+            df['week_of_year'] = df['timestamp'].dt.isocalendar().week
+            df['week_sin'] = np.sin(2 * np.pi * df['week_of_year'] / 52)
+            df['week_cos'] = np.cos(2 * np.pi * df['week_of_year'] / 52)
+            
+            # Add missing features with reasonable defaults
+            if 'coco' not in df.columns:
+                df['coco'] = 0  # Default cloud coverage
             
             # Save processed data
             processed_file = os.path.join(self.data_dir, "processed", "merged_data.csv")
