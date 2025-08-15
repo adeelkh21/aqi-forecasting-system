@@ -1402,13 +1402,24 @@ def show_analytics():
 
 def show_historical_eda():
     """Show comprehensive historical EDA using the actual historical_merged.csv file"""
+    
+    # Set pandas to handle PyArrow compatibility issues
+    import warnings
+    warnings.filterwarnings('ignore', category=UserWarning, module='pyarrow')
+    
     try:
         # Load historical data
         try:
             csv_path = "data_repositories/historical_data/processed/historical_merged.csv"
             if os.path.exists(csv_path):
-                df = pd.read_csv(csv_path)
-                st.success(f"✅ Successfully loaded historical data: {len(df)} records")
+                # Try to load with PyArrow engine first, fallback to default if it fails
+                try:
+                    df = pd.read_csv(csv_path, engine='pyarrow')
+                    st.success(f"✅ Successfully loaded historical data with PyArrow: {len(df)} records")
+                except Exception as pyarrow_error:
+                    st.warning(f"⚠️ PyArrow engine failed, using default engine: {pyarrow_error}")
+                    df = pd.read_csv(csv_path)
+                    st.success(f"✅ Successfully loaded historical data with default engine: {len(df)} records")
                 
                 # Validate required columns - check for timestamp column with different possible names
                 timestamp_cols = ['timestamp', 'date', 'time', 'datetime']
@@ -1460,12 +1471,30 @@ def show_historical_eda():
             
             # Convert datetime columns to strings to avoid PyArrow serialization issues
             display_df = df.copy()
-            if 'timestamp' in display_df.columns:
-                display_df['timestamp'] = display_df['timestamp'].astype(str)
+            
+            # Convert all datetime-like columns to strings to prevent PyArrow errors
+            for col in display_df.columns:
+                if display_df[col].dtype == 'object':
+                    try:
+                        # Check if it's a datetime column by trying to parse first few values
+                        sample_values = display_df[col].dropna().head(10)
+                        if len(sample_values) > 0:
+                            pd.to_datetime(sample_values.iloc[0])
+                            # It's a datetime column, convert to string
+                            display_df[col] = display_df[col].astype(str)
+                    except:
+                        # Not a datetime column, leave as is
+                        pass
             
             st.write("**First 5 Records:**")
             try:
-                st.dataframe(display_df.head(), use_container_width=True)
+                # Additional safety: ensure all columns are string-compatible
+                safe_display_df = display_df.head().copy()
+                for col in safe_display_df.columns:
+                    if safe_display_df[col].dtype == 'object':
+                        safe_display_df[col] = safe_display_df[col].astype(str)
+                
+                st.dataframe(safe_display_df, use_container_width=True)
             except Exception as e:
                 st.error(f"Error displaying dataframe: {e}")
                 st.write("**Data preview (first 3 rows):**")
@@ -1473,7 +1502,13 @@ def show_historical_eda():
             
             st.write("**Last 5 Records:**")
             try:
-                st.dataframe(display_df.tail(), use_container_width=True)
+                # Additional safety: ensure all columns are string-compatible
+                safe_display_df = display_df.tail().copy()
+                for col in safe_display_df.columns:
+                    if safe_display_df[col].dtype == 'object':
+                        safe_display_df[col] = safe_display_df[col].astype(str)
+                
+                st.dataframe(safe_display_df, use_container_width=True)
             except Exception as e:
                 st.error(f"Error displaying dataframe: {e}")
                 st.write("**Data preview (last 3 rows):**")
