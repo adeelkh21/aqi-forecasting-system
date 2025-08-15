@@ -26,6 +26,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from phase1_data_collection import DataCollector
 from enhanced_aqi_forecasting_real import EnhancedAQIForecaster
 
+# Environment variables for deployment
+PORT = int(os.getenv("PORT", 8001))
+HOST = os.getenv("HOST", "0.0.0.0")
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -39,7 +44,14 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "*",  # Allow all origins in development
+        "https://*.streamlit.app",  # Streamlit Cloud domains
+        "https://streamlit.io",
+        "https://*.railway.app",  # Railway domains
+        "https://*.herokuapp.com",  # Heroku domains
+        "https://*.render.com",  # Render domains
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -452,4 +464,4 @@ def generate_fallback_aqi() -> float:
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run(app, host=HOST, port=PORT, debug=DEBUG)
