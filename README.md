@@ -1,3 +1,19 @@
+## Holdout (Aug 1–5) evaluation run order
+
+Run these from the project root after ensuring your venv is active and `OPENWEATHER_API_KEY` is set.
+
+1) Collect observed pollutants and weather
+   - `python 21_collect_aug_observed.py`
+2) Generate basic ex‑ante forecast placeholders (optional; improves joins)
+   - `python 22_generate_exante_forecast.py`
+3) Join observed + ex‑ante + compute ground truth AQI
+   - `python 23_join_holdout_data.py`
+4) Build exact ex‑ante engineered features aligned to training (02/03)
+   - `python 24_build_holdout_features_exact.py`
+5) Train on pre‑Aug and evaluate direct 24/48/72 horizons on aligned holdout
+   - `python 25_evaluate_direct_horizons.py`
+
+Outputs land under `data_repositories/hourly_data/` (holdout artifacts) and `saved_models/direct_horizon_models/` (metrics and models).
 # 🌤️ AQI Forecasting System
 
 **Real-Time Air Quality Index Forecasting System for Peshawar, Pakistan**
@@ -359,3 +375,19 @@ If this project helped you, please give it a ⭐ star on GitHub!
 **Last Updated**: August 15, 2025  
 **Version**: 2.0.0  
 **Status**: Production Ready 🚀
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

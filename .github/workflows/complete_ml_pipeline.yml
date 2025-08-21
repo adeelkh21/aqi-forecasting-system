@@ -1,0 +1,96 @@
+name: Complete ML Pipeline
+
+on:
+  schedule:
+    # Run every 6 hours (4 times per day)
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Allow manual trigger
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '01_data_collection.py'
+      - '02_data_preprocessing.py'
+      - '03_feature_selection.py'
+      - '11_per_horizon_finetune.py'
+      - 'daily_runner.py'
+
+jobs:
+  ml-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Create model directories
+      run: |
+        mkdir -p saved_models/champions
+        mkdir -p saved_models/forecasts
+        mkdir -p saved_models/reports
+        
+    - name: Fine-tune models
+      run: |
+        echo "🔄 Starting model fine-tuning..."
+        python 11_per_horizon_finetune.py
+        echo "✅ Model fine-tuning completed"
+        
+    - name: Run daily pipeline
+      run: |
+        echo "🔄 Running daily pipeline..."
+        python daily_runner.py
+        echo "✅ Daily pipeline completed"
+        
+    - name: Generate forecasts
+      run: |
+        echo "🔄 Generating forecasts..."
+        python forecast.py
+        echo "✅ Forecasts generated"
+        
+    - name: Run backtest validation
+      run: |
+        echo "🔄 Running backtest validation..."
+        python forecast.py --backtest 5
+        echo "✅ Backtest validation completed"
+        
+    - name: Commit and push updated models
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        # Add all updated model files
+        git add saved_models/
+        
+        # Check if there are changes to commit
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "🤖 Auto-update: ML pipeline models $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          git push
+          echo "✅ Models committed and pushed"
+        fi
+        
+    - name: Upload pipeline artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ml-pipeline-artifacts
+        path: |
+          saved_models/
+        retention-days: 7
+        
+    - name: Pipeline summary
+      run: |
+        echo "🎉 Complete ML Pipeline Completed Successfully!"
+        echo "🤖 Models fine-tuned and validated at: $(date -u)"
+        echo "📈 Forecasts generated and backtested"
+        echo "📁 All model artifacts saved and committed"
+        echo "🔄 Next run scheduled for: $(date -u -d '+6 hours')"

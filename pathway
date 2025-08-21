@@ -1,0 +1,105 @@
+Here’s a simple, step-by-step roadmap to get a daily “learn-then-forecast” system working locally for your dates (after July 30), using your existing scripts.
+
+### One-time setup (do this once)
+- Ensure these scripts run without errors: `01_data_collection.py`, `02_data_preprocessing.py`, `03_feature_selection.py`, `forecast.py`, `11_per_horizon_finetune.py`, `daily_runner.py`.
+- Confirm artifacts are created under:
+  - `data_repositories/features/phase1_fixed_selected_features.csv`
+  - `data_repositories/features/phase1_fixed_feature_columns.pkl`
+
+### Cycle design you want (in plain words)
+- Collect new data (e.g., last 3 days).
+- Preprocess and (re)build features.
+- Learn from the new data (fine-tune with safety).
+- Forecast the next 3 days (24h/48h/72h).
+- Repeat for the next 3 days, and so on.
+
+### Block 1: 31 Jul, 1 Aug, 2 Aug
+1) Collect those 3 days (historical mode)
+- Run your data collection to fetch 2024-07-31 → 2024-08-02 and save to `data_repositories/historical_data/processed/merged_data.csv`.
+
+2) Preprocess + Feature selection
+- Run:
+  - `python 02_data_preprocessing.py`
+  - `python 03_feature_selection.py`
+- This creates the no-leakage, feature-selected dataset and updates feature columns/scaler.
+
+3) Learn (fine-tune) with safety gates
+- Run:
+  - `python 11_per_horizon_finetune.py`
+- This will:
+  - Try to fine-tune 24h CatBoost, 48h/72h TCNs.
+  - Save results to `saved_models/per_horizon_finetune_results.csv`.
+- Optional safer wrapper:
+  - `python daily_runner.py` (it runs fine-tune, applies a “do-no-harm” promotion gate, then forecasts).
+  - First run initializes the registry and will NOT promote (safety).
+
+4) Forecast (one-shot using latest data)
+- Run:
+  - `python forecast.py`
+- It uses the latest timestamp in your features to forecast:
+  - 24h → next day
+  - 48h → day after that
+  - 72h → day after that
+- With data through Aug 2, it will forecast Aug 3, 4, 5.
+- Outputs go to `saved_models/forecasts/forecast_<timestamp>.(csv|json)`.
+
+5) Archive/check
+- Keep the forecast files and the fine-tune report together for that block.
+
+### Block 2: 3 Aug, 4 Aug, 5 Aug (repeat cycle)
+- Do the same steps, now collecting 2024-08-03 → 2024-08-05.
+- Run 02 + 03 again to refresh features.
+- Run 11 to fine-tune (or `daily_runner.py` to fine-tune + gate + forecast automatically).
+- Run `forecast.py` to generate forecasts for Aug 6, 7, 8.
+
+### Which scripts to use daily
+- Minimal manual sequence (learn then forecast):
+  - Collect new days (update merged_data.csv)
+  - `python 02_data_preprocessing.py`
+  - `python 03_feature_selection.py`
+  - `python 11_per_horizon_finetune.py` (learn)
+  - `python forecast.py` (forecast)
+- Or one-step wrapper:
+  - `python daily_runner.py` (assumes features already reflect the latest day; it fine-tunes with safety gates and then forecasts)
+
+### Validation and improvement (keep it simple)
+- Weekly sanity check:
+  - `python forecast.py --backtest 5`
+  - Review fold-wise RMSE/R² summary in console and CSV under `saved_models/reports/`.
+- If fine-tune doesn’t improve (like earlier), the promotion gate will keep your champions. You still get forecasts every day.
+
+### When you move to CI/CD
+- Make two workflows:
+  - Data workflow (collect + preprocess + feature selection).
+  - Model workflow (fine-tune + gate + forecast).
+- Trigger the model workflow after the data workflow completes.
+- Keep thresholds in `saved_models/registry/models.json` strict to avoid bad promotions.
+
+That’s it. Start with Block 1 (Jul 31 → Aug 2), run the 5 steps above. Once you see forecasts for Aug 3–5, repeat the cycle for the next 3 days (Aug 3–5) to produce Aug 6–8 forecasts. This achieves your “working, learning, improving” loop locally before moving to GitHub Actions.
+
+
+
+
+
+
+
+
+ Input file not found at default path. Using fallback: data_repositories/historical_data/processed/merged_data.csv
+   Raw data loaded: 3,620 records
+   Date range: 2025-03-04 00:00:00 to 2025-08-11 19:00:00
+   Columns: 32
+   Using training window: 2025-03-04 00:00:00 → 2025-08-11 19:00:00 (full range; tail trimmed after target creation)
+   Training period data: 3,620 records
+   Training data range: 2025-03-04 00:00:00 → 2025-08-11 19:00:00
+
+
+--------------------------------
+
+ Date range: 2025-03-04 to 2025-08-08
+   ✅ MULTI-HORIZON FORECASTING: 24h, 48h, 72h ahead
+   ✅ NO DATA LEAKAGE: No future information used as features
+   ✅ NO AQI LEAKAGE: Only legitimate forecasting features
+📅 Preprocessing output dataset range: 2025-03-04 00:00:00 → 2025-08-08 19:00:00
+
+
+

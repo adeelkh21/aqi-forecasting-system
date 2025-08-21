@@ -1439,6 +1439,14 @@ def show_historical_eda():
                     df = df.rename(columns={found_timestamp_col: 'timestamp'})
                     st.info(f"📝 Renamed '{found_timestamp_col}' column to 'timestamp' for consistency")
                 
+                # Convert timestamp column to datetime for proper analysis
+                try:
+                    df['timestamp'] = pd.to_datetime(df['timestamp'])
+                    st.success("✅ Timestamp column converted to datetime format")
+                except Exception as e:
+                    st.warning(f"⚠️ Could not convert timestamp to datetime: {e}")
+                    st.info("Some time-based analysis features may not work properly")
+                
                 # Store in session state for reuse
                 st.session_state.historical_data = df
                 
@@ -1458,7 +1466,14 @@ def show_historical_eda():
         with col1:
             st.metric("Total Records", len(df))
         with col2:
-            st.metric("Date Range", f"{df['timestamp'].min()[:10]} to {df['timestamp'].max()[:10]}")
+            # Convert timestamp to string format for display
+            try:
+                min_date = str(df['timestamp'].min())[:10]
+                max_date = str(df['timestamp'].max())[:10]
+                st.metric("Date Range", f"{min_date} to {max_date}")
+            except Exception as e:
+                st.metric("Date Range", "N/A")
+                st.warning(f"Could not parse date range: {e}")
         with col3:
             st.metric("Columns", len(df.columns))
         with col4:
@@ -1590,6 +1605,17 @@ def show_historical_eda():
                 st.error("❌ AQI column is missing or contains no valid data")
                 st.info("Cannot proceed with time series analysis without AQI data.")
                 return
+            
+            # Safety check: ensure timestamp column is datetime for time-based analysis
+            if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
+                st.warning("⚠️ Timestamp column is not in datetime format. Converting...")
+                try:
+                    df['timestamp'] = pd.to_datetime(df['timestamp'])
+                    st.success("✅ Timestamp converted to datetime format")
+                except Exception as e:
+                    st.error(f"❌ Cannot convert timestamp to datetime: {e}")
+                    st.info("Time-based analysis features will be disabled")
+                    return
             
             # Time-based visualizations
             col1, col2 = st.columns(2)
@@ -2326,7 +2352,7 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 Dataset Overview:
 - Total Records: {len(df)}
-- Date Range: {df['timestamp'].min()[:10]} to {df['timestamp'].max()[:10]}
+- Date Range: {str(df['timestamp'].min())[:10]} to {str(df['timestamp'].max())[:10]}
 - Columns: {len(df.columns)}
 - Missing Values: {df.isnull().sum().sum()}
 
